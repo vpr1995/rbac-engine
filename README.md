@@ -18,7 +18,7 @@ npm install access-control
 
 ## Dependencies
 
-- Node.js 22.0.0 or higher
+- Node.js 16.0.0 or higher
 - For DynamoDB support:
   - @aws-sdk/client-dynamodb
   - @aws-sdk/lib-dynamodb
@@ -158,27 +158,52 @@ console.log(`Editor can delete document: ${editorCanDelete}`); // false
 
 A User represents an individual accessing your system. Users can have roles assigned to them and policies attached directly.
 
+```typescript
+export interface User {
+    id: string;
+    name: string;
+    roles?: string[];
+    policies?: string[];
+}
+```
+
 ### Roles
 
 Roles are collections of permissions that can be assigned to users. Assigning roles to users makes permission management easier as multiple users can share the same role.
+
+```typescript
+export interface Role {
+    id: string;
+    name: string;
+    policies?: string[];
+}
+```
 
 ### Policies
 
 Policies define what actions are allowed or denied on what resources. Each policy contains one or more statements that specify the permissions.
 
-### Policy Document Structure
-
 ```typescript
-interface PolicyDocument {
-  Version: string;
-  Statement: PolicyStatement[];
+export interface Policy {
+    id: string;
+    document: PolicyDocument;
 }
 
-interface PolicyStatement {
-  Effect: Effect; // 'Allow' or 'Deny'
-  Action: string[]; // Actions to allow/deny
-  Resource: string[]; // Resources on which actions are allowed/denied
-  Condition?: Record<string, any>; // Optional conditions
+export interface PolicyDocument {
+    Version: string;
+    Statement: PolicyStatement[];
+}
+
+export interface PolicyStatement {
+    Effect: Effect; // 'Allow' or 'Deny'
+    Action: string[]; // Actions to allow/deny
+    Resource: string[]; // Resources on which actions are allowed/denied
+    Condition?: Record<string, any>; // Optional conditions
+}
+
+export enum Effect {
+    Allow = 'Allow',
+    Deny = 'Deny'
 }
 ```
 
@@ -244,25 +269,40 @@ constructor(client: unknown)
 #### Methods
 
 ```typescript
+// Initialization
 async init(): Promise<void>
+
+// User Management
 async createUser(user: User): Promise<User>
-async createRole(role: Role): Promise<Role>
-async assignRoleToUser(userId: string, roleId: string): Promise<User>
-async createPolicy(policy: Policy): Promise<Policy>
-async attachPolicyToRole(policyId: string, roleId: string): Promise<void>
-async attachPolicyToUser(policyId: string, userId: string): Promise<void>
-async hasAccess(userId: string, action: string, resource: string, context?: Record<string, any>): Promise<boolean>
 async getUser(userId: string): Promise<User>
+
+// Role Management
+async createRole(role: Role): Promise<Role>
 async getRole(roleId: string): Promise<Role>
-async getUserPolicies(userId: string): Promise<Policy[]>
-async getRolePolicies(roleId: string): Promise<Policy[]>
 async updateRole(role: Role): Promise<Role>
+async deleteRole(roleId: string): Promise<void>
+
+// Role Assignment
+async assignRoleToUser(userId: string, roleId: string): Promise<User>
+async removeRoleFromUser(userId: string, roleId: string): Promise<void>
+
+// Policy Management
+async createPolicy(policy: Policy): Promise<Policy>
 async updatePolicy(policy: Policy): Promise<Policy>
 async deletePolicy(policyId: string): Promise<void>
-async deleteRole(roleId: string): Promise<void>
+
+// Policy Attachment
+async attachPolicyToRole(policyId: string, roleId: string): Promise<void>
+async attachPolicyToUser(policyId: string, userId: string): Promise<void>
 async detachPolicyFromRole(policyId: string, roleId: string): Promise<void>
 async detachPolicyFromUser(policyId: string, userId: string): Promise<void>
-async removeRoleFromUser(userId: string, roleId: string): Promise<void>
+
+// Policy Retrieval
+async getUserPolicies(userId: string): Promise<Policy[]>
+async getRolePolicies(roleId: string): Promise<Policy[]>
+
+// Access Control
+async hasAccess(userId: string, action: string, resource: string, context?: Record<string, any>): Promise<boolean>
 ```
 
 ## Complete Example
@@ -293,6 +333,16 @@ const pgPool = new Pool(pgConfig);
 const accessControl = new AccessControl(pgPool);
 ```
 
+## NPM Package Information
+
+This package is available on npm and can be installed using npm or yarn:
+
+```bash
+npm install access-control
+```
+
+The package works with Node.js 16.0.0 and above.
+
 ## Best Practices
 
 1. **Use UUIDs for IDs**: Generate unique IDs for users, roles, and policies using a library like `uuid`
@@ -303,7 +353,7 @@ const accessControl = new AccessControl(pgPool);
 
 ## License
 
-ISC
+MIT
 
 ## Author
 

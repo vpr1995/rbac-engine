@@ -1,19 +1,41 @@
 {
   "name": "access-control",
   "version": "1.0.0",
+  "description": "Access control library for managing permissions and policies",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
+  "files": [
+    "dist/**/*"
+  ],
   "scripts": {
     "build": "tsc -b",
     "test": "jest",
     "test:watch": "jest --watch",
-    "test:coverage": "jest --coverage"
+    "test:coverage": "jest --coverage",
+    "prepublishOnly": "npm run test && npm run build",
+    "lint": "eslint . --ext .ts",
+    "prepare": "npm run build"
   },
   "author": "Prudhvi Reddy Vemireddy",
-  "license": "ISC",
+  "license": "MIT",
   "engines": {
-    "node": ">=22.0.0"
+    "node": ">=16.0.0"
   },
+  "keywords": [
+    "access-control",
+    "permissions",
+    "authorization",
+    "rbac",
+    "security"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/vprprudhvi/access-control.git"
+  },
+  "bugs": {
+    "url": "https://github.com/vprprudhvi/access-control/issues"
+  },
+  "homepage": "https://github.com/vprprudhvi/access-control#readme",
   "devDependencies": {
     "@types/jest": "^29.5.14",
     "@types/node": "^22.0.0",

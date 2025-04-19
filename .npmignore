@@ -1,0 +1,28 @@
+# Source
+src/
+test/
+examples/
+
+# Config files
+tsconfig.json
+jest.config.js
+.eslintrc.js
+.prettierrc
+.editorconfig
+
+# Development
+node_modules/
+coverage/
+.github/
+.vscode/
+.git/
+
+# Logs
+logs/
+*.log
+npm-debug.log*
+
+# Misc
+.DS_Store
+.env
+.env.*
