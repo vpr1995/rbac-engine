@@ -42,7 +42,7 @@ async function run() {
 
         // Admin policy - can do everything
         const adminPolicyDocument: PolicyDocument = {
-            Version: "2023-11-15",
+            Version: "2023-11-15", // this can be anything, but we use a date for clarity
             Statement: [
                 {
                     Effect: Effect.Allow,
