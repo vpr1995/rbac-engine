@@ -4,7 +4,7 @@ import { DynamoDBRepository } from "../db/dynamodb-repo";
 import { v4 as uuidv4 } from "uuid";
 
 /**
- * This example demonstrates how to use the AccessControl library with DynamoDB.
+ * This example demonstrates how to use the RBAC Engine library with DynamoDB.
  * It creates users, roles, and policies, then demonstrates checking permissions.
  */
 

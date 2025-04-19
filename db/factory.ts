@@ -19,6 +19,9 @@ type RepositoryConstructor = new (client: any) => IBaseRepository;
  * @throws {Error} When client or repository constructor is not provided
  * @example
  * // Using with DynamoDB
+ * import { DynamoDBClient } from "@aws-sdk/client-dynamodb";
+ * import { createRepository, DynamoDBRepository } from "rbac-engine";
+ * 
  * const dynamoClient = new DynamoDBClient({ region: 'us-east-1' });
  * const repo = createRepository(dynamoClient, DynamoDBRepository);
  */

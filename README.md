@@ -1,4 +1,4 @@
-# Access Control Library
+# RBAC Engine
 
 A flexible and powerful role-based access control (RBAC) system with policy-based permissions for Node.js applications. This library provides a robust way to manage permissions across your application, inspired by AWS IAM.
 
@@ -13,7 +13,7 @@ A flexible and powerful role-based access control (RBAC) system with policy-base
 ## Installation
 
 ```bash
-npm install access-control
+npm install rbac-engine
 ```
 
 ## Dependencies
@@ -29,7 +29,7 @@ npm install access-control
 
 ```typescript
 import { DynamoDBClient } from "@aws-sdk/client-dynamodb";
-import { AccessControl, DynamoDBRepository } from "access-control";
+import { AccessControl, DynamoDBRepository } from "rbac-engine";
 
 // Create a DynamoDB client
 const dynamoClient = new DynamoDBClient({ region: "us-east-1" });
@@ -60,7 +60,7 @@ const editorRole = await accessControl.createRole({
 ### 3. Define Policies
 
 ```typescript
-import { Effect, PolicyDocument } from "access-control";
+import { Effect, PolicyDocument } from "rbac-engine";
 
 // Admin policy - can do everything
 const adminPolicyDocument: PolicyDocument = {
@@ -320,7 +320,7 @@ You can extend the library to work with other databases by implementing the `IBa
 2. Pass your custom repository constructor to the AccessControl constructor
 
 ```typescript
-import { AccessControl, IBaseRepository } from "access-control";
+import { AccessControl, IBaseRepository } from "rbac-engine";
 import { Pool } from "pg";
 
 // Example for PostgreSQL
@@ -347,7 +347,7 @@ const accessControl = new AccessControl(pgPool, PostgresRepository);
 This package is available on npm and can be installed using npm or yarn:
 
 ```bash
-npm install access-control
+npm install rbac-engine
 ```
 
 The package works with Node.js 16.0.0 and above.

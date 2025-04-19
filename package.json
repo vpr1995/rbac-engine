@@ -1,7 +1,7 @@
 {
-  "name": "access-control",
+  "name": "rbac-engine",
   "version": "1.0.0",
-  "description": "Access control library for managing permissions and policies",
+  "description": "Role-based access control engine with policy-based permissions",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "files": [
@@ -23,19 +23,22 @@
   },
   "keywords": [
     "access-control",
+    "rbac-engine",
+    "role-based-access-control",
     "permissions",
     "authorization",
     "rbac",
-    "security"
+    "security",
+    "policy"
   ],
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/vprprudhvi/access-control.git"
+    "url": "git+https://github.com/vprprudhvi/rbac-engine.git"
   },
   "bugs": {
-    "url": "https://github.com/vprprudhvi/access-control/issues"
+    "url": "https://github.com/vprprudhvi/rbac-engine/issues"
   },
-  "homepage": "https://github.com/vprprudhvi/access-control#readme",
+  "homepage": "https://github.com/vprprudhvi/rbac-engine#readme",
   "devDependencies": {
     "@types/jest": "^29.5.14",
     "@types/node": "^22.0.0",

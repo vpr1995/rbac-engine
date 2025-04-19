@@ -18,6 +18,14 @@ type RepositoryConstructor = new (client: any) => IBaseRepository;
  * 
  * This class handles creating and managing users, roles, and policies, as well as
  * evaluating access requests based on assigned permissions.
+ * 
+ * @example
+ * // Using with default DynamoDB repository
+ * import { DynamoDBClient } from "@aws-sdk/client-dynamodb";
+ * import { AccessControl } from "rbac-engine";
+ * 
+ * const dynamoClient = new DynamoDBClient({ region: "us-east-1" });
+ * const accessControl = new AccessControl(dynamoClient);
  */
 export class AccessControl {
     private repository: IBaseRepository;
