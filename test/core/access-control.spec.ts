@@ -75,13 +75,14 @@ describe('AccessControl', () => {
   mockCreateRepository.mockImplementation((_client: any, _repoConstructor: any) => mockRepository);
 
   const mockClient = { type: 'mock' };
-  let accessControl: AccessControl;
+  let accessControl: AccessControl<any>;
 
   beforeEach(() => {
     // Clear all mocks before each test
     jest.clearAllMocks();
     // Initialize AccessControl with the mock client and mock repository constructor
-    accessControl = new AccessControl(mockClient, MockRepositoryClass);
+    // The explicit repository constructor is needed for testing, in real usage it's optional
+    accessControl = new AccessControl<any>(mockClient, MockRepositoryClass);
   });
 
   describe('init', () => {

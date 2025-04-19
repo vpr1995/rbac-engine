@@ -13,8 +13,8 @@ export class DynamoDBRepository implements IBaseRepository {
     }
 
     async setupTables(): Promise<void> {
-        try{
-            await this.client.send( new DescribeTableCommand({
+        try {
+            await this.client.send(new DescribeTableCommand({
                 TableName: this.tableName
             }));
             console.log("Table already exists");
@@ -37,9 +37,9 @@ export class DynamoDBRepository implements IBaseRepository {
                 console.log("Table created");
             } else {
                 throw new Error(`Something went wrong: ${err}`);
+            }
         }
     }
-}
 
     async createUser(user: User): Promise<User> {
         const item = {
@@ -168,35 +168,6 @@ export class DynamoDBRepository implements IBaseRepository {
         }));
         
         return policy;
-    }
-
-    async attachPolcyToUser(policyId: string, userId: string): Promise<User> {
-        const user = await this.getUser(userId);
-
-        if (!user.policies) {
-            user.policies = [];
-        }
-
-        const policies = new Set(user.policies);
-        policies.add(policyId);
-        const updatedPolicies = Array.from(policies);
-
-        await this.docClient.send(new UpdateCommand({
-            TableName: this.tableName,
-            Key: {
-                PK: `USER#${userId}`,
-                SK: `USER#${userId}`
-            },
-            UpdateExpression: "SET #policiesAttr = :policies",
-            ExpressionAttributeNames: {
-                "#policiesAttr": "policies"
-            },
-            ExpressionAttributeValues: {
-                ":policies": updatedPolicies
-            }
-        }));
-
-        return user;
     }
 
     async attachPolicyToRole(policyId: string, roleId: string): Promise<void> {

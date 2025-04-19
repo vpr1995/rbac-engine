@@ -261,11 +261,11 @@ The main class for all access control operations.
 #### Constructor
 
 ```typescript
-constructor(client: unknown, repositoryConstructor = DynamoDBRepository)
+constructor(client: T, repositoryConstructor: RepositoryConstructor<T>)
 ```
 
 - `client`: Database client (e.g., DynamoDBClient)
-- `repositoryConstructor`: Optional constructor for the repository implementation (defaults to DynamoDBRepository)
+- `repositoryConstructor`: Constructor for the repository implementation (e.g., DynamoDBRepository)
 
 #### Methods
 

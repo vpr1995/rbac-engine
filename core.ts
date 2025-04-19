@@ -2,15 +2,14 @@ import {User, Role, Policy} from "./models";
 import {IBaseRepository} from "./db/base-repo";
 import { evaluate } from "./policy/evaluator";
 import { createRepository } from "./db/factory";
-import { DynamoDBRepository } from "./db/dynamodb-repo";
 
 /**
  * Type for repository constructor that creates repositories implementing IBaseRepository
  * This type represents a constructor function that takes a database client and
  * returns an implementation of the IBaseRepository interface.
- * @typedef {new (client: any) => IBaseRepository} RepositoryConstructor
+ * @typedef {new <T>(client: T) => IBaseRepository} RepositoryConstructor<T>
  */
-type RepositoryConstructor = new (client: any) => IBaseRepository;
+type RepositoryConstructor<T> = new (client: T) => IBaseRepository;
 
 /**
  * AccessControl provides role-based access control functionality with policy evaluation
@@ -20,33 +19,41 @@ type RepositoryConstructor = new (client: any) => IBaseRepository;
  * evaluating access requests based on assigned permissions.
  * 
  * @example
- * // Using with default DynamoDB repository
+ * // Import the necessary classes
  * import { DynamoDBClient } from "@aws-sdk/client-dynamodb";
- * import { AccessControl } from "rbac-engine";
+ * import { AccessControl, DynamoDBRepository } from "rbac-engine";
  * 
+ * // Create your database client
  * const dynamoClient = new DynamoDBClient({ region: "us-east-1" });
- * const accessControl = new AccessControl(dynamoClient);
+ * 
+ * // Initialize with an explicit repository implementation
+ * const accessControl = new AccessControl(dynamoClient, DynamoDBRepository);
  */
-export class AccessControl {
+export class AccessControl<T> {
     private repository: IBaseRepository;
 
     /**
      * Creates a new AccessControl instance
      * 
-     * @param {unknown} client - The database client or connection information to use for persistence
-     * @param {RepositoryConstructor} repositoryConstructor - Constructor for the repository implementation
-     *                                                      (defaults to DynamoDBRepository)
+     * @param {T} client - The database client or connection information to use for persistence
+     * @param {RepositoryConstructor<T>} repositoryConstructor - Constructor for the repository implementation
      * @example
-     * // Using with default DynamoDB repository
+     * // Using with DynamoDB repository
+     * import { DynamoDBClient } from "@aws-sdk/client-dynamodb";
+     * import { AccessControl, DynamoDBRepository } from "rbac-engine";
+     * 
      * const dynamoClient = new DynamoDBClient({ region: "us-east-1" });
-     * const accessControl = new AccessControl(dynamoClient);
+     * const accessControl = new AccessControl(dynamoClient, DynamoDBRepository);
      * 
      * @example
-     * // Using with a custom repository
+     * // Using with a PostgreSQL repository
+     * import { Pool } from "pg";
+     * import { AccessControl, PostgresRepository } from "rbac-engine";
+     * 
      * const pgPool = new Pool(pgConfig);
      * const accessControl = new AccessControl(pgPool, PostgresRepository);
      */
-    constructor(client: unknown, repositoryConstructor: RepositoryConstructor = DynamoDBRepository) {
+    constructor(client: T, repositoryConstructor: RepositoryConstructor<T>) {
         this.repository = createRepository(client, repositoryConstructor);
     }
 

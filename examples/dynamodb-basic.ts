@@ -14,7 +14,7 @@ const dynamoClient = new DynamoDBClient({
 });
 
 // Initialize the access control system with DynamoDB repository
-// Note: The second parameter is now explicit for clarity, though it defaults to DynamoDBRepository
+// Note: The repository implementation must be explicitly specified
 const accessControl = new AccessControl(dynamoClient, DynamoDBRepository);
 
 async function run() {
