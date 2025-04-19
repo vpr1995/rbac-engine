@@ -142,7 +142,10 @@ export class DynamoDBRepository implements IBaseRepository {
                 PK: `USER#${userId}`,
                 SK: `USER#${userId}`
             },
-            UpdateExpression: "SET roles = :roles",
+            UpdateExpression: "SET #rolesAttr = :roles",
+            ExpressionAttributeNames: {
+                "#rolesAttr": "roles"
+            },
             ExpressionAttributeValues: {
                 ":roles": updatedRoles
             }
@@ -184,7 +187,10 @@ export class DynamoDBRepository implements IBaseRepository {
                 PK: `USER#${userId}`,
                 SK: `USER#${userId}`
             },
-            UpdateExpression: "SET policies = :policies",
+            UpdateExpression: "SET #policiesAttr = :policies",
+            ExpressionAttributeNames: {
+                "#policiesAttr": "policies"
+            },
             ExpressionAttributeValues: {
                 ":policies": updatedPolicies
             }
@@ -210,7 +216,10 @@ export class DynamoDBRepository implements IBaseRepository {
                 PK: `ROLE#${roleId}`,
                 SK: `ROLE#${roleId}`
             },
-            UpdateExpression: "SET policies = :policies",
+            UpdateExpression: "SET #policiesAttr = :policies",
+            ExpressionAttributeNames: {
+                "#policiesAttr": "policies"
+            },
             ExpressionAttributeValues: {
                 ":policies": updatedPolicies
             }
@@ -312,7 +321,10 @@ export class DynamoDBRepository implements IBaseRepository {
                 PK: `USER#${userId}`,
                 SK: `USER#${userId}`
             },
-            UpdateExpression: "SET policies = :policies",
+            UpdateExpression: "SET #policiesAttr = :policies",
+            ExpressionAttributeNames: {
+                "#policiesAttr": "policies"
+            },
             ExpressionAttributeValues: {
                 ":policies": policies
             },
@@ -333,7 +345,10 @@ export class DynamoDBRepository implements IBaseRepository {
                 PK: `ROLE#${roleId}`,
                 SK: `ROLE#${roleId}`
             },
-            UpdateExpression: "SET policies = :policies",
+            UpdateExpression: "SET #policiesAttr = :policies",
+            ExpressionAttributeNames: {
+                "#policiesAttr": "policies"
+            },
             ExpressionAttributeValues: {
                 ":policies": policies
             },
@@ -354,7 +369,10 @@ export class DynamoDBRepository implements IBaseRepository {
                 PK: `USER#${userId}`,
                 SK: `USER#${userId}`
             },
-            UpdateExpression: "SET roles = :roles",
+            UpdateExpression: "SET #rolesAttr = :roles",
+            ExpressionAttributeNames: {
+                "#rolesAttr": "roles"
+            },
             ExpressionAttributeValues: {
                 ":roles": roles
             },
@@ -378,7 +396,10 @@ export class DynamoDBRepository implements IBaseRepository {
                 PK: `USER#${userId}`,
                 SK: `USER#${userId}`
             },
-            UpdateExpression: "SET policies = :policies",
+            UpdateExpression: "SET #policiesAttr = :policies",
+            ExpressionAttributeNames: {
+                "#policiesAttr": "policies"
+            },
             ExpressionAttributeValues: {
                 ":policies": updatedPolicies
             }
