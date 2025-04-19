@@ -33,12 +33,12 @@
   ],
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/vprprudhvi/rbac-engine.git"
+    "url": "git+https://github.com/vpr1995/rbac-engine.git"
   },
   "bugs": {
-    "url": "https://github.com/vprprudhvi/rbac-engine/issues"
+    "url": "https://github.com/vpr1995/rbac-engine/issues"
   },
-  "homepage": "https://github.com/vprprudhvi/rbac-engine#readme",
+  "homepage": "https://github.com/vpr1995/rbac-engine#readme",
   "devDependencies": {
     "@types/jest": "^29.5.14",
     "@types/node": "^22.0.0",
