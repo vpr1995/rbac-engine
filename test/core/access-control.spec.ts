@@ -1,6 +1,7 @@
 import { AccessControl } from '../../core';
 import { Effect, User, Role, Policy } from '../../models';
 import { evaluate } from '../../policy/evaluator';
+import { IBaseRepository } from '../../db/base-repo';
 
 // Mock the policy evaluator module
 jest.mock('../../policy/evaluator', () => ({
@@ -14,7 +15,7 @@ jest.mock('../../db/factory', () => ({
 
 describe('AccessControl', () => {
   // Create a mock repository that implements IBaseRepository
-  const mockRepository = {
+  const mockRepository: jest.Mocked<IBaseRepository> = {
     setupTables: jest.fn().mockResolvedValue(undefined),
     createUser: jest.fn(),
     getUser: jest.fn(),
@@ -35,9 +36,43 @@ describe('AccessControl', () => {
     removeRoleFromUser: jest.fn().mockResolvedValue(undefined)
   };
 
+  /**
+   * Mock repository class that implements IBaseRepository
+   * This is used to satisfy the new factory pattern which expects 
+   * a constructor function that creates repository instances
+   */
+  class MockRepositoryClass implements IBaseRepository {
+    /**
+     * Constructor that matches the signature expected by the factory
+     * @param _client - Database client (not used in tests)
+     */
+    constructor(_client: any) {
+      // Do nothing with the client in the test
+    }
+    // Forward all method calls to the mockRepository object
+    setupTables = mockRepository.setupTables;
+    createUser = mockRepository.createUser;
+    getUser = mockRepository.getUser;
+    createRole = mockRepository.createRole;
+    getRole = mockRepository.getRole;
+    assignRoleToUser = mockRepository.assignRoleToUser;
+    createPolicy = mockRepository.createPolicy;
+    attachPolicyToRole = mockRepository.attachPolicyToRole;
+    attachPolicyToUser = mockRepository.attachPolicyToUser;
+    getUserPolicies = mockRepository.getUserPolicies;
+    getRolePolicies = mockRepository.getRolePolicies;
+    updateRole = mockRepository.updateRole;
+    updatePolicy = mockRepository.updatePolicy;
+    deletePolicy = mockRepository.deletePolicy;
+    deleteRole = mockRepository.deleteRole;
+    detachPolicyFromRole = mockRepository.detachPolicyFromRole;
+    detachPolicyFromUser = mockRepository.detachPolicyFromUser;
+    removeRoleFromUser = mockRepository.removeRoleFromUser;
+  }
+
   // Mock the factory to return our mock repository
   const mockCreateRepository = require('../../db/factory').createRepository;
-  mockCreateRepository.mockReturnValue(mockRepository);
+  mockCreateRepository.mockImplementation((_client: any, _repoConstructor: any) => mockRepository);
 
   const mockClient = { type: 'mock' };
   let accessControl: AccessControl;
@@ -45,7 +80,8 @@ describe('AccessControl', () => {
   beforeEach(() => {
     // Clear all mocks before each test
     jest.clearAllMocks();
-    accessControl = new AccessControl(mockClient);
+    // Initialize AccessControl with the mock client and mock repository constructor
+    accessControl = new AccessControl(mockClient, MockRepositoryClass);
   });
 
   describe('init', () => {

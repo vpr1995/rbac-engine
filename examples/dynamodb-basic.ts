@@ -1,12 +1,21 @@
 import { DynamoDBClient } from "@aws-sdk/client-dynamodb";
 import { AccessControl, Effect, PolicyDocument } from "../index";
+import { DynamoDBRepository } from "../db/dynamodb-repo";
 import { v4 as uuidv4 } from "uuid";
 
+/**
+ * This example demonstrates how to use the AccessControl library with DynamoDB.
+ * It creates users, roles, and policies, then demonstrates checking permissions.
+ */
+
+// Create a DynamoDB client
 const dynamoClient = new DynamoDBClient({
     region: "us-east-1",
 });
 
-const accessControl = new AccessControl(dynamoClient);
+// Initialize the access control system with DynamoDB repository
+// Note: The second parameter is now explicit for clarity, though it defaults to DynamoDBRepository
+const accessControl = new AccessControl(dynamoClient, DynamoDBRepository);
 
 async function run() {
     try {

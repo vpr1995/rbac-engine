@@ -29,13 +29,13 @@ npm install access-control
 
 ```typescript
 import { DynamoDBClient } from "@aws-sdk/client-dynamodb";
-import { AccessControl } from "access-control";
+import { AccessControl, DynamoDBRepository } from "access-control";
 
 // Create a DynamoDB client
 const dynamoClient = new DynamoDBClient({ region: "us-east-1" });
 
-// Initialize the access control system
-const accessControl = new AccessControl(dynamoClient);
+// Initialize the access control system with DynamoDB repository
+const accessControl = new AccessControl(dynamoClient, DynamoDBRepository);
 
 // Create necessary tables
 await accessControl.init();
@@ -261,10 +261,11 @@ The main class for all access control operations.
 #### Constructor
 
 ```typescript
-constructor(client: unknown)
+constructor(client: unknown, repositoryConstructor = DynamoDBRepository)
 ```
 
 - `client`: Database client (e.g., DynamoDBClient)
+- `repositoryConstructor`: Optional constructor for the repository implementation (defaults to DynamoDBRepository)
 
 #### Methods
 
@@ -311,26 +312,34 @@ See the [examples/dynamodb-basic.ts](examples/dynamodb-basic.ts) file for a comp
 
 ## Extending the Library
 
-### Supporting Other Databases
+### Creating Custom Repository Implementations
 
-You can extend the library to work with other databases by:
+You can extend the library to work with other databases by implementing the `IBaseRepository` interface:
 
-1. Implementing the `IBaseRepository` interface
-2. Registering your implementation with the factory
+1. Create a new repository class that implements the `IBaseRepository` interface
+2. Pass your custom repository constructor to the AccessControl constructor
 
 ```typescript
-import { extendRepositoryMap } from "access-control";
+import { AccessControl, IBaseRepository } from "access-control";
+import { Pool } from "pg";
 
 // Example for PostgreSQL
-import { Pool } from "pg";
-import { PostgresRepository } from "./my-postgres-repo";
-
-// Register your repository
-extendRepositoryMap(Pool, PostgresRepository);
+class PostgresRepository implements IBaseRepository {
+  constructor(private pool: Pool) {
+    // Initialize your repository with the database connection
+  }
+  
+  // Implement all required methods from IBaseRepository interface
+  async createUser(user: User): Promise<User> {
+    // PostgreSQL implementation
+  }
+  
+  // ... implement all other required methods
+}
 
 // Then use it
 const pgPool = new Pool(pgConfig);
-const accessControl = new AccessControl(pgPool);
+const accessControl = new AccessControl(pgPool, PostgresRepository);
 ```
 
 ## NPM Package Information

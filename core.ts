@@ -2,6 +2,15 @@ import {User, Role, Policy} from "./models";
 import {IBaseRepository} from "./db/base-repo";
 import { evaluate } from "./policy/evaluator";
 import { createRepository } from "./db/factory";
+import { DynamoDBRepository } from "./db/dynamodb-repo";
+
+/**
+ * Type for repository constructor that creates repositories implementing IBaseRepository
+ * This type represents a constructor function that takes a database client and
+ * returns an implementation of the IBaseRepository interface.
+ * @typedef {new (client: any) => IBaseRepository} RepositoryConstructor
+ */
+type RepositoryConstructor = new (client: any) => IBaseRepository;
 
 /**
  * AccessControl provides role-based access control functionality with policy evaluation
@@ -16,10 +25,21 @@ export class AccessControl {
     /**
      * Creates a new AccessControl instance
      * 
-     * @param client - The database client or connection information to use for persistence
+     * @param {unknown} client - The database client or connection information to use for persistence
+     * @param {RepositoryConstructor} repositoryConstructor - Constructor for the repository implementation
+     *                                                      (defaults to DynamoDBRepository)
+     * @example
+     * // Using with default DynamoDB repository
+     * const dynamoClient = new DynamoDBClient({ region: "us-east-1" });
+     * const accessControl = new AccessControl(dynamoClient);
+     * 
+     * @example
+     * // Using with a custom repository
+     * const pgPool = new Pool(pgConfig);
+     * const accessControl = new AccessControl(pgPool, PostgresRepository);
      */
-    constructor(client: unknown) {
-        this.repository = createRepository(client);
+    constructor(client: unknown, repositoryConstructor: RepositoryConstructor = DynamoDBRepository) {
+        this.repository = createRepository(client, repositoryConstructor);
     }
 
     /**

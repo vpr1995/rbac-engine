@@ -1,11 +1,9 @@
 /**
  * Repository factory module for creating database repository instances
- * based on client types.
+ * based on client types and repository constructors.
  * @module factory
  */
-import { DynamoDBClient } from "@aws-sdk/client-dynamodb";
 import { IBaseRepository } from "./base-repo";
-import { DynamoDBRepository } from "./dynamodb-repo";
 
 /**
  * Type definition for repository constructors
@@ -14,41 +12,22 @@ import { DynamoDBRepository } from "./dynamodb-repo";
 type RepositoryConstructor = new (client: any) => IBaseRepository;
 
 /**
- * Maps client types to their corresponding repository implementations
- * @type {Array<[Function, RepositoryConstructor]>}
- */
-const repositoryMap: [ Function, RepositoryConstructor ][] = [
-    [ DynamoDBClient, DynamoDBRepository]
-];
-
-/**
- * Creates an appropriate repository instance based on the provided client type
+ * Creates an appropriate repository instance based on the provided client and repository constructor
  * @param {any} client - Database client instance
- * @returns {IBaseRepository} Repository implementation for the client
- * @throws {Error} When no repository is found for the client type
+ * @param {RepositoryConstructor} repositoryConstructor - Constructor function for the repository implementation
+ * @returns {IBaseRepository} Repository implementation instance
+ * @throws {Error} When client or repository constructor is not provided
+ * @example
+ * // Using with DynamoDB
+ * const dynamoClient = new DynamoDBClient({ region: 'us-east-1' });
+ * const repo = createRepository(dynamoClient, DynamoDBRepository);
  */
-export function createRepository(client: any): IBaseRepository {
-    for (const [clientType, repositoryType] of repositoryMap) {
-        if (client instanceof clientType) {
-            return new repositoryType(client);
-        }
+export function createRepository(client: any, repositoryConstructor: RepositoryConstructor ): IBaseRepository {
+    if (!client) {
+        throw new Error("Client is required to create a repository");
     }
-    throw new Error('No repository found for client');
-}
-
-/**
- * Extends the repository map with a new client type and repository implementation
- * @param {Function} clientType - Client constructor function
- * @param {RepositoryConstructor} repositoryType - Repository constructor
- */
-export function extendRepositoryMap(clientType: Function, repositoryType: RepositoryConstructor): void {
-    repositoryMap.push([clientType, repositoryType]);
-}
-
-/**
- * Empties the repository map
- * Primarily used for testing purposes
- */
-export function emptyRepositoryMap(): void {
-    repositoryMap.length = 0;
+    if (!repositoryConstructor) {
+        throw new Error("Repository constructor is required to create a repository");
+    }
+    return new repositoryConstructor(client);
 }
