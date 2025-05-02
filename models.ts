@@ -48,6 +48,8 @@ export interface PolicyStatement {
     Action: string[];
     Resource: string[];
     Condition?: Record<string, any>;
+    StartDate?: string; // ISO format date string for when the policy becomes active (UTC)
+    EndDate?: string;   // ISO format date string for when the policy expires (UTC)
 }
 
 /**

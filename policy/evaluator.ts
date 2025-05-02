@@ -38,6 +38,51 @@ export const matches = (pattern: string | string[], value: string): boolean => {
 }
 
 /**
+ * Checks if a policy statement is active based on its StartDate and EndDate
+ * @param statement - The policy statement to check
+ * @returns True if the statement is active (within date range or no date constraints), false otherwise
+ */
+export const isStatementActive = (statement: any): boolean => {
+    const now = new Date();
+    
+    // Check StartDate if it exists
+    if (statement.StartDate) {
+        try {
+            const startDate = new Date(statement.StartDate);
+            if (isNaN(startDate.getTime())) {
+                console.warn(`Invalid StartDate format in policy statement: ${statement.StartDate}`);
+                return false;
+            }
+            if (now.getTime() < startDate.getTime()) {
+                return false; // Policy not yet active
+            }
+        } catch (e) {
+            console.warn(`Error parsing StartDate: ${e}`);
+            return false;
+        }
+    }
+    
+    // Check EndDate if it exists
+    if (statement.EndDate) {
+        try {
+            const endDate = new Date(statement.EndDate);
+            if (isNaN(endDate.getTime())) {
+                console.warn(`Invalid EndDate format in policy statement: ${statement.EndDate}`);
+                return false;
+            }
+            if (now.getTime() > endDate.getTime()) {
+                return false; // Policy has expired
+            }
+        } catch (e) {
+            console.warn(`Error parsing EndDate: ${e}`);
+            return false;
+        }
+    }
+    
+    return true; // No date constraints or within date range
+}
+
+/**
  * Evaluates access policies to determine if an action on a resource is allowed
  * Follows deny-override logic: explicit deny takes precedence over allows
  * 
@@ -59,9 +104,16 @@ export const evaluate = (
         const statements = Array.isArray(document.Statement) ? document.Statement : [document.Statement];
 
         for (const statement of statements) {
+            // Skip if statement is not active based on date/time constraints
+            if (!isStatementActive(statement)) {
+                continue;
+            }
+            
+            // Skip if conditions don't match
             if (statement.Condition && !evaluateCondition(statement.Condition, context)) {
                 continue;
             }
+            
             if (matches(statement.Action, action) && matches(statement.Resource, resource)) {
                 if (statement.Effect === 'Allow') {
                     isAllowed = true;
@@ -70,7 +122,6 @@ export const evaluate = (
                 }
             }
         }
-
     }
     return isAllowed;
 }

@@ -7,6 +7,7 @@ A flexible and powerful role-based access control (RBAC) system with policy-base
 - **Role-Based Access Control**: Assign roles to users and define permissions at the role level
 - **Policy-Based Permissions**: Create detailed policies using JSON format
 - **Flexible Permissions**: Support for wildcard patterns and conditional access
+- **Time-Based Policies**: Define policies with start and end dates for temporary access
 - **DynamoDB Integration**: Built-in support for Amazon DynamoDB
 - **Extensible Architecture**: Easily extend to support other database systems
 
@@ -199,6 +200,8 @@ export interface PolicyStatement {
     Action: string[]; // Actions to allow/deny
     Resource: string[]; // Resources on which actions are allowed/denied
     Condition?: Record<string, any>; // Optional conditions
+    StartDate?: string; // Optional ISO format date string for when the policy becomes active (UTC)
+    EndDate?: string; // Optional ISO format date string for when the policy expires (UTC)
 }
 
 export enum Effect {
@@ -250,6 +253,48 @@ const canAccess = await accessControl.hasAccess(
   "sensitive-document/budget",
   { department: "finance" } // Only users with finance department can access
 );
+```
+
+### Time-Based Policies
+
+Create policies that are only active during specific time periods by setting optional `StartDate` and/or `EndDate` fields. This is useful for temporary access grants, seasonal permissions, or scheduled policy changes.
+
+Dates should be provided in ISO format strings and are interpreted as UTC timestamps:
+
+```typescript
+const temporaryAccessPolicy: PolicyDocument = {
+  Version: "2023-11-15",
+  Statement: [
+    {
+      Effect: Effect.Allow,
+      Action: ["read", "update"],
+      Resource: ["project/quarterly-report"],
+      StartDate: "2025-01-01T00:00:00Z", // Active from January 1st, 2025
+      EndDate: "2025-03-31T23:59:59Z"    // Until March 31st, 2025
+    }
+  ]
+};
+
+// This policy will only grant access during Q1 2025
+// Outside that date range, permissions will not be granted even if the policy is attached
+```
+
+You can combine time-based constraints with conditions for even more granular control:
+
+```typescript
+const contractorPolicy: PolicyDocument = {
+  Version: "2023-11-15",
+  Statement: [
+    {
+      Effect: Effect.Allow,
+      Action: ["read", "update"],
+      Resource: ["project/*"],
+      Condition: { contractorId: "C12345" },
+      StartDate: "2025-01-01T00:00:00Z", // Contract start date
+      EndDate: "2025-06-30T23:59:59Z"    // Contract end date
+    }
+  ]
+};
 ```
 
 ## API Reference
