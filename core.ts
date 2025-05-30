@@ -2,6 +2,7 @@ import {User, Role, Policy} from "./models";
 import {IBaseRepository} from "./db/base-repo";
 import { evaluate } from "./policy/evaluator";
 import { createRepository } from "./db/factory";
+import { PolicyBuilder } from "./builders";
 
 /**
  * Type for repository constructor that creates repositories implementing IBaseRepository
@@ -99,12 +100,32 @@ export class AccessControl<T> {
 
     /**
      * Creates a new policy in the system
+     * Supports both traditional Policy objects and PolicyBuilder instances
      * 
-     * @param policy - Policy object containing permission rules
+     * @param policy - Policy object containing permission rules or PolicyBuilder instance
      * @returns Promise containing the created policy with generated ID
+     * 
+     * @example
+     * // Traditional object approach (backward compatible)
+     * const policy = await accessControl.createPolicy({
+     *   id: 'policy-123',
+     *   document: {
+     *     Version: '2023-11-15',
+     *     Statement: [...]
+     *   }
+     * });
+     * 
+     * @example
+     * // New builder approach
+     * const policy = await accessControl.createPolicy(
+     *   new PolicyBuilder('policy-123')
+     *     .allow(['read', 'write'])
+     *     .on(['document/*'])
+     * );
      */
-    async createPolicy(policy: Policy): Promise<Policy> {
-        return await this.repository.createPolicy(policy);
+    async createPolicy(policy: Policy | PolicyBuilder): Promise<Policy> {
+        const policyObject = policy instanceof PolicyBuilder ? policy.build() : policy;
+        return await this.repository.createPolicy(policyObject);
     }
 
     /**
@@ -116,6 +137,17 @@ export class AccessControl<T> {
      */
     async attachPolicyToRole(policyId: string, roleId: string): Promise<void> {
         return await this.repository.attachPolicyToRole(policyId, roleId);
+    }
+
+    /**
+     * Attaches an existing policy directly to an existing user
+     * 
+     * @param policyId - ID of the policy
+     * @param userId - ID of the user
+     * @returns Promise that resolves when the attachment is complete
+     */
+    async attachPolicyToUser(policyId: string, userId: string): Promise<void> {
+        return await this.repository.attachPolicyToUser(policyId, userId);
     }
 
     /**

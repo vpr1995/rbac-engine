@@ -1,6 +1,6 @@
 {
   "name": "rbac-engine",
-  "version": "1.1.0",
+  "version": "1.2.0",
   "description": "Role-based access control engine with policy-based permissions",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",

@@ -11,6 +11,19 @@ A flexible and powerful role-based access control (RBAC) system with policy-base
 - **DynamoDB Integration**: Built-in support for Amazon DynamoDB
 - **Extensible Architecture**: Easily extend to support other database systems
 
+
+## Table of Contents
+
+- [Installation](#installation)
+- [Dependencies](#dependencies)
+- [Quick Start](#quick-start)
+- [Builder Pattern API](#builder-pattern-api)
+- [Core Concepts](#core-concepts)
+- [Advanced Features](#advanced-features)
+- [Examples](#examples)
+- [API Reference](#api-reference)
+- [Extending the Library](#extending-the-library)
+
 ## Installation
 
 ```bash
@@ -97,6 +110,38 @@ const editorPolicy = await accessControl.createPolicy({
   id: "policy-editor-456",
   document: editorPolicyDocument
 });
+```
+
+#### Alternative: Using Builder Pattern
+
+You can also create policies using the fluent builder pattern:
+
+```typescript
+import { PolicyBuilder, StatementBuilder } from 'rbac-engine';
+
+// Admin policy using builder pattern
+const adminPolicy = await accessControl.createPolicy(
+  new PolicyBuilder('policy-admin-123')
+    .version('2023-11-15')
+    .allow(['*'])
+    .on(['*'])
+);
+
+// Editor policy with multiple statements using builder pattern
+const editorPolicy = await accessControl.createPolicy(
+  new PolicyBuilder('policy-editor-456')
+    .version('2023-11-15')
+    .statement(
+      new StatementBuilder()
+        .allow(['read', 'create', 'update'])
+        .on(['document/*'])
+    )
+    .statement(
+      new StatementBuilder()
+        .deny(['delete'])
+        .on(['document/critical/*'])
+    )
+);
 ```
 
 ### 4. Attach Policies to Roles
@@ -351,9 +396,142 @@ async getRolePolicies(roleId: string): Promise<Policy[]>
 async hasAccess(userId: string, action: string, resource: string, context?: Record<string, any>): Promise<boolean>
 ```
 
-## Complete Example
+## Builder Pattern API
 
-See the [examples/dynamodb-basic.ts](examples/dynamodb-basic.ts) file for a complete working example.
+The RBAC Engine supports both traditional object-based policy creation and a modern builder pattern API. The builder pattern provides a fluent, intuitive way to create policies while maintaining full backward compatibility.
+
+### PolicyBuilder
+
+Use `PolicyBuilder` for creating policies with a fluent API:
+
+```typescript
+import { PolicyBuilder, StatementBuilder } from 'rbac-engine';
+
+// Simple single-statement policy
+const simplePolicy = new PolicyBuilder('read-documents')
+  .version('2023-11-15')
+  .allow(['read', 'list'])
+  .on(['document/*'])
+  .when({ department: 'engineering' })
+  .build();
+
+// Complex multi-statement policy
+const complexPolicy = new PolicyBuilder('complex-permissions')
+  .version('2023-11-15')
+  .statement(
+    new StatementBuilder()
+      .allow(['read', 'write'])
+      .on(['project/*'])
+      .when({ role: 'developer' })
+      .activeFrom('2025-01-01T00:00:00Z')
+      .activeUntil('2025-12-31T23:59:59Z')
+  )
+  .statement(
+    new StatementBuilder()
+      .deny(['delete'])
+      .on(['project/production/*'])
+  )
+  .build();
+```
+
+### StatementBuilder
+
+Create individual policy statements with the `StatementBuilder`:
+
+```typescript
+import { StatementBuilder } from 'rbac-engine';
+
+const statement = new StatementBuilder()
+  .allow(['read', 'write'])  // or .deny(['delete'])
+  .on(['resource/*'])        // Resources to apply to
+  .when({ dept: 'eng' })     // Optional conditions
+  .activeFrom('2025-01-01T00:00:00Z')  // Optional start date
+  .activeUntil('2025-12-31T23:59:59Z') // Optional end date
+  .build();
+```
+
+### Builder Methods
+
+#### PolicyBuilder Methods
+- `version(version: string)` - Set the policy document version
+- `allow(actions: string[])` - Add an allow statement (simple mode)
+- `deny(actions: string[])` - Add a deny statement (simple mode)
+- `on(resources: string[])` - Set resources for simple mode statement
+- `when(conditions: object)` - Set conditions for simple mode statement
+- `activeFrom(date: string)` - Set start date for simple mode statement
+- `activeUntil(date: string)` - Set end date for simple mode statement
+- `statement(statement: StatementBuilder)` - Add a statement (complex mode)
+- `addStatements(statements: StatementBuilder[])` - Add multiple statements
+- `build()` - Build and validate the final Policy object
+
+#### StatementBuilder Methods
+- `allow(actions: string[])` - Set effect to Allow with actions
+- `deny(actions: string[])` - Set effect to Deny with actions
+- `on(resources: string[])` - Set resources
+- `when(conditions: object)` - Set conditions
+- `activeFrom(date: string)` - Set start date
+- `activeUntil(date: string)` - Set end date
+- `build()` - Build and validate the final PolicyStatement
+
+### Integration with AccessControl
+
+The `AccessControl.createPolicy()` method accepts both `Policy` objects and `PolicyBuilder` instances:
+
+```typescript
+// Traditional approach (still fully supported)
+const traditionalPolicy: Policy = {
+  id: 'traditional-policy',
+  document: {
+    Version: '2023-11-15',
+    Statement: [
+      {
+        Effect: Effect.Allow,
+        Action: ['read'],
+        Resource: ['document/*']
+      }
+    ]
+  }
+};
+
+// Builder approach
+const builderPolicy = new PolicyBuilder('builder-policy')
+  .allow(['read'])
+  .on(['document/*']);
+
+// Both work with AccessControl
+await accessControl.createPolicy(traditionalPolicy);
+await accessControl.createPolicy(builderPolicy);
+```
+
+### Validation
+
+Builder validation occurs only when calling `.build()`, providing detailed error messages:
+
+```typescript
+try {
+  const policy = new PolicyBuilder('invalid-policy')
+    .allow(['read'])
+    // Missing .on() call
+    .build();
+} catch (error) {
+  console.log(error.message); // "Invalid policy configuration"
+  console.log(error.details);  // Array of specific validation errors
+}
+```
+
+## Complete Examples
+
+The RBAC Engine comes with comprehensive examples demonstrating all features:
+
+### **📋 Comprehensive Example** (Recommended)
+See [examples/comprehensive-example.ts](examples/comprehensive-example.ts) for a complete demonstration of all library features including:
+- Basic RBAC setup with roles, policies, and users
+- Traditional vs Builder Pattern approaches
+- Time-based policies with date constraints
+- Conditional access with context
+- Wildcard patterns and complex permissions
+- Direct policy attachment to users
+- Advanced multi-statement policies
 
 ## Extending the Library
 
